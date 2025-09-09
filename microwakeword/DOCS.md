@@ -27,6 +27,11 @@ for more information.
 
 Enable debug logging. Useful for seeing satellite connections and each wake word detection in the logs.
 
+### Option `custom_dir`
+
+Directory for custom microwakeword Models. Needs the .json and .tflite file. 
+Mountpoints at /config and /share.
+
 ## Support
 
 Got questions?
