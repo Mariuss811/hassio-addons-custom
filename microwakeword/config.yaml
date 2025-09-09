@@ -12,8 +12,10 @@ discovery:
   - wyoming
 options:
   debug_logging: false
+  custom_dir: ""
 schema:
-  debug_logging: bool
+  debug_logging: bool 
+  custom_dir: str
 ports:
   "10400/tcp": null
 homeassistant: 2023.9.0

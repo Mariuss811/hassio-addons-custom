@@ -9,6 +9,9 @@ flags=()
 if bashio::config.true 'debug_logging'; then
     flags+=('--debug')
 fi
-
+if bashio::config.has_value 'custom_dir'; then
+    custom_dir=$(bashio::config 'custom_dir')
+    flags+=('--custom_dir' "$custom_dir")
+fi    
 exec .venv/bin/python3 -m wyoming_microwakeword \
     --uri 'tcp://0.0.0.0:10400' ${flags[@]}
