@@ -1,9 +1,9 @@
 ---
 version: 1.0.2
 slug: microwakeword
-name: microwakeword
+name: microwakeword-custom_dir
 description: microWakeWord using the Wyoming protocol
-url: https://github.com/rhasspy/hassio-addons/tree/master/microwakeword
+url: https://github.com/Mariuss811/hassio-addons-custom
 arch:
   - amd64
   - aarch64
