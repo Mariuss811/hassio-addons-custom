@@ -12,4 +12,4 @@ fi
     
 exec .venv/bin/python3 -m wyoming_microwakeword \
     --uri 'tcp://0.0.0.0:10400' ${flags[@]} \
-    --debug-recording-dir "$(bashio::config 'debug_recording_dir')" ${extra_args[@]}
+    --custom-model-dir "$(bashio::config 'custom_dir')" ${extra_args[@]}
