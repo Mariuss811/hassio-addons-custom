@@ -19,3 +19,8 @@ schema:
 ports:
   "10400/tcp": null
 homeassistant: 2023.9.0
+map:
+  - type: share
+    read_only: False
+  - type: config
+    read_only: True
