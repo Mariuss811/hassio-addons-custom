@@ -1,5 +1,5 @@
 ---
-version: 1.0.2
+version: 1.0.3
 slug: microwakeword
 name: microwakeword-custom_dir
 description: microWakeWord using the Wyoming protocol
