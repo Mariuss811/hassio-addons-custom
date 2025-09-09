@@ -4,13 +4,13 @@ FROM ${BUILD_FROM}
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Install microWakeWord
+# Install microWakeWord from a specific branch
 WORKDIR /usr/src
-ENV WYOMING_MICROWAKEWORD_VERSION=1.0.0
 
 RUN \
     apt-get update \
     && apt-get install -y --no-install-recommends \
+        git \
         netcat-traditional \
         python3 \
         python3-pip \
@@ -22,11 +22,13 @@ RUN \
     && .venv/bin/pip3 install --no-cache-dir -U \
         setuptools \
         wheel \
+    \
+    # Install wyoming-microwakeword from the custom-model-support branch
     && .venv/bin/pip3 install --no-cache-dir \
         --extra-index-url https://www.piwheels.org/simple \
-        "wyoming-microwakeword @ https://github.com/rhasspy/wyoming-microwakeword/archive/refs/tags/${WYOMING_MICROWAKEWORD_VERSION}.tar.gz" \
+        "wyoming-microwakeword @ git+https://github.com/michelle-avery/wyoming-microwakeword.git@custom-model-support" \
     \
-    && apt-get remove --yes build-essential \
+    && apt-get remove --yes build-essential git \
     && apt-get autoclean \
     && apt-get purge \
     && rm -rf /var/lib/apt/lists/*
