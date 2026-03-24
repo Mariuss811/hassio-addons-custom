@@ -15,7 +15,7 @@ fi
 
 # --- START: Custom Volume Control via MQTT Discovery (v1.0.2) ---
 if bashio::config.true 'enable_volume_control'; then
-    bashio::log.info "🔊 [v1.0.2] Volume Control Block gestartet"
+    bashio::log.info "🔊 [v1.0.4] Volume Control Block gestartet"
 
     VOLUME_TOPIC=$(bashio::config 'volume_topic') || VOLUME_TOPIC="anker/volume/set"
     STATE_TOPIC="${VOLUME_TOPIC}/state"
