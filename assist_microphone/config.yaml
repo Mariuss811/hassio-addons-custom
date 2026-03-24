@@ -1,6 +1,6 @@
 name: "Assist Microphone Custom (with Volume)"
 description: "Satelliten-Mikrofon mit eigener MQTT-Lautstärkeregelung für ALSA."
-version: "1.0.6"
+version: "1.0.7"
 slug: "assist_microphone_custom"
 init: false
 arch:
