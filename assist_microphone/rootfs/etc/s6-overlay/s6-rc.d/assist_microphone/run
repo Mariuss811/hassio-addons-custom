@@ -13,24 +13,37 @@ if bashio::config.true 'sound_enabled'; then
     extra_args+=('--snd-command' 'aplay -r 16000 -c 1 -f S16_LE -t raw')
 fi
 
-# --- START: Custom Volume Control via MQTT Discovery (v1.0.2) ---
+# --- START: Custom Volume Control via MQTT Discovery (v1.0.6) ---
 if bashio::config.true 'enable_volume_control'; then
-    bashio::log.info "🔊 [v1.0.5] Volume Control Block gestartet"
+    bashio::log.info "🔊 [v1.0.6] Volume Control Block gestartet"
 
     VOLUME_TOPIC=$(bashio::config 'volume_topic') || VOLUME_TOPIC="anker/volume/set"
     STATE_TOPIC="${VOLUME_TOPIC}/state"
     DISCOVERY_TOPIC="homeassistant/number/assist_microphone_custom_volume/config"
     bashio::log.info "🔊 Topics: cmd=${VOLUME_TOPIC} state=${STATE_TOPIC}"
 
-    # MQTT Zugangsdaten mit Fallback
-    MQTT_HOST=$(bashio::services mqtt "host") || MQTT_HOST=""
-    MQTT_PORT=$(bashio::services mqtt "port") || MQTT_PORT="1883"
-    MQTT_USER=$(bashio::services mqtt "username") || MQTT_USER=""
-    MQTT_PASS=$(bashio::services mqtt "password") || MQTT_PASS=""
-    bashio::log.info "🔊 MQTT: host=${MQTT_HOST} port=${MQTT_PORT} user=${MQTT_USER}"
+    # MQTT Zugangsdaten: erst Supervisor API, dann Add-on Options als Fallback
+    MQTT_HOST=""
+    MQTT_PORT="1883"
+    MQTT_USER=""
+    MQTT_PASS=""
+
+    if MQTT_HOST=$(bashio::services mqtt "host" 2>/dev/null) && [[ -n "${MQTT_HOST}" ]]; then
+        MQTT_PORT=$(bashio::services mqtt "port" 2>/dev/null) || MQTT_PORT="1883"
+        MQTT_USER=$(bashio::services mqtt "username" 2>/dev/null) || MQTT_USER=""
+        MQTT_PASS=$(bashio::services mqtt "password" 2>/dev/null) || MQTT_PASS=""
+        bashio::log.info "🔊 MQTT via Supervisor API: host=${MQTT_HOST} port=${MQTT_PORT} user=${MQTT_USER}"
+    else
+        bashio::log.warning "⚠️ Supervisor API nicht erreichbar, verwende Add-on Optionen"
+        MQTT_HOST=$(bashio::config 'mqtt_host') || MQTT_HOST="core-mosquitto"
+        MQTT_PORT=$(bashio::config 'mqtt_port') || MQTT_PORT="1883"
+        MQTT_USER=$(bashio::config 'mqtt_user') || MQTT_USER=""
+        MQTT_PASS=$(bashio::config 'mqtt_pass') || MQTT_PASS=""
+        bashio::log.info "🔊 MQTT via Config: host=${MQTT_HOST} port=${MQTT_PORT} user=${MQTT_USER}"
+    fi
 
     if [[ -z "${MQTT_HOST}" ]]; then
-        bashio::log.error "❌ MQTT Host leer! MQTT Service nicht verfügbar?"
+        bashio::log.error "❌ MQTT Host leer! Bitte mqtt_host in den Add-on Optionen setzen."
     else
         # MQTT Argumente zusammenbauen
         MQTT_ARGS=(-h "${MQTT_HOST}" -u "${MQTT_USER}" -P "${MQTT_PASS}")
