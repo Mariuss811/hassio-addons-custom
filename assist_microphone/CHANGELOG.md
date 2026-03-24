@@ -1,15 +1,17 @@
 # Changelog
 
-## 1.3.0
+## 1.1.0
 
-- Update to wyoming-satellite 1.3.0 to get support for timers
-- Added configuration options for setting timer sound, repetitions and delay
-
-## 1.2.0
-
-- Update to wyoming-satellite 1.2.0
+- **MQTT Discovery Volume Control** — Add-on erstellt automatisch eine `number`-Entity in Home Assistant
+  - ALSA Mixer Auto-Erkennung (Master → Fallback)
+  - Input-Validierung (0–100%) und State-Feedback
+  - Konfigurierbare MQTT-Credentials als Fallback (wenn Supervisor API nicht erreichbar)
+- Entity erscheint ohne eigenes Device (cleaner neben Wyoming-Gerät)
+- Basiert auf wyoming-satellite mit `alsa-utils`, `mosquitto-clients`, `jq`
 
 ## 1.0.0
 
-- Initial release
-
+- Fork des offiziellen Assist Microphone Add-ons
+- Slug geändert (`assist_microphone_custom`) um Konflikte zu vermeiden
+- `mqtt: true`, `audio: true` in config.yaml
+- `alsa-utils`, `mosquitto-clients`, `jq` zum Dockerfile hinzugefügt

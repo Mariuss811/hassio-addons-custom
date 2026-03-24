@@ -60,13 +60,7 @@ if bashio::config.true 'enable_volume_control'; then
                 step: 5,
                 unit_of_measurement: "%",
                 icon: "mdi:volume-high",
-                mode: "slider",
-                device: {
-                    identifiers: ["assist_microphone_custom"],
-                    name: "Assist Microphone Custom",
-                    manufacturer: "Custom Add-on",
-                    model: "USB Audio Volume Control"
-                }
+                mode: "slider"
             }')
 
         if mosquitto_pub "${MQTT_ARGS[@]}" -r -t "${DISCOVERY_TOPIC}" -m "${DISCOVERY_PAYLOAD}" 2>/dev/null; then
