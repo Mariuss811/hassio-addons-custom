@@ -26,14 +26,8 @@ if bashio::config.true 'enable_volume_control'; then
     MQTT_PASS=$(bashio::services mqtt "password")
     MQTT_ARGS=(-h "${MQTT_HOST}" -p "${MQTT_PORT}" -u "${MQTT_USER}" -P "${MQTT_PASS}")
 
-    # ALSA Mixer-Control erkennen (USB-Speaker haben oft kein 'Master')
-    ALSA_CONTROL="Master"
-    if ! amixer sget "${ALSA_CONTROL}" &>/dev/null; then
-        ALSA_CONTROL=$(amixer scontrols | head -1 | sed "s/.*'\(.*\)'.*/\1/")
-        bashio::log.warning "⚠️ 'Master' nicht gefunden, verwende Mixer: '${ALSA_CONTROL}'"
-    fi
-
-    # MQTT Discovery Config veröffentlichen (retained) → HA erstellt number Entity
+    # 1) MQTT Discovery Config veröffentlichen (retained) → HA erstellt number Entity
+    #    Dies braucht kein ALSA und sollte IMMER klappen
     DISCOVERY_PAYLOAD=$(jq -n \
         --arg name "Anker Lautstärke" \
         --arg uid "assist_microphone_custom_volume" \
@@ -57,30 +51,47 @@ if bashio::config.true 'enable_volume_control'; then
                 model: "USB Audio Volume Control"
             }
         }')
-    mosquitto_pub "${MQTT_ARGS[@]}" -r -t "${DISCOVERY_TOPIC}" -m "${DISCOVERY_PAYLOAD}"
-    bashio::log.info "🔊 MQTT Discovery veröffentlicht: ${DISCOVERY_TOPIC}"
+    mosquitto_pub "${MQTT_ARGS[@]}" -r -t "${DISCOVERY_TOPIC}" -m "${DISCOVERY_PAYLOAD}" \
+        && bashio::log.info "🔊 MQTT Discovery veröffentlicht" \
+        || bashio::log.error "❌ MQTT Discovery publish fehlgeschlagen"
 
-    # Aktuellen Lautstärke-Wert als initialen State publishen
-    CURRENT_VOL=$(amixer sget "${ALSA_CONTROL}" 2>/dev/null | grep -oP '\d+%' | head -1 | tr -d '%') || CURRENT_VOL=50
-    mosquitto_pub "${MQTT_ARGS[@]}" -r -t "${STATE_TOPIC}" -m "${CURRENT_VOL}"
-    bashio::log.info "🔊 Initialer Wert: ${CURRENT_VOL}%"
+    # 2) ALSA Mixer-Control erkennen (USB-Speaker haben oft kein 'Master')
+    ALSA_CONTROL=""
+    if amixer sget "Master" &>/dev/null; then
+        ALSA_CONTROL="Master"
+    else
+        ALSA_CONTROL=$(amixer scontrols 2>/dev/null | head -1 | sed "s/.*'\(.*\)'.*/\1/")
+    fi
 
-    # Auf Lautstärke-Befehle lauschen
-    bashio::log.info "🔊 Lausche auf: ${VOLUME_TOPIC} (Mixer: ${ALSA_CONTROL})"
-    mosquitto_sub "${MQTT_ARGS[@]}" -t "${VOLUME_TOPIC}" | while read -r payload; do
-        if [[ "${payload}" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-            vol=$(printf '%.0f' "${payload}")
-            if (( vol >= 0 && vol <= 100 )); then
-                bashio::log.info "🔊 Lautstärke → ${vol}%"
-                amixer sset "${ALSA_CONTROL}" "${vol}%" || bashio::log.error "❌ amixer fehlgeschlagen"
-                mosquitto_pub "${MQTT_ARGS[@]}" -r -t "${STATE_TOPIC}" -m "${vol}"
+    if [[ -z "${ALSA_CONTROL}" ]]; then
+        bashio::log.error "❌ Kein ALSA Mixer gefunden! Volume control deaktiviert."
+        bashio::log.error "   Verfügbare Geräte: $(aplay -l 2>&1 || echo 'keine')"
+    else
+        bashio::log.info "🔊 ALSA Mixer: '${ALSA_CONTROL}'"
+
+        # 3) Aktuellen Lautstärke-Wert als initialen State publishen
+        CURRENT_VOL=$(amixer sget "${ALSA_CONTROL}" 2>/dev/null | grep -oP '\d+%' | head -1 | tr -d '%')
+        CURRENT_VOL=${CURRENT_VOL:-50}
+        mosquitto_pub "${MQTT_ARGS[@]}" -r -t "${STATE_TOPIC}" -m "${CURRENT_VOL}"
+        bashio::log.info "🔊 Initialer Wert: ${CURRENT_VOL}%"
+
+        # 4) Auf Lautstärke-Befehle lauschen
+        bashio::log.info "🔊 Lausche auf: ${VOLUME_TOPIC}"
+        mosquitto_sub "${MQTT_ARGS[@]}" -t "${VOLUME_TOPIC}" | while read -r payload; do
+            if [[ "${payload}" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+                vol=$(printf '%.0f' "${payload}")
+                if (( vol >= 0 && vol <= 100 )); then
+                    bashio::log.info "🔊 Lautstärke → ${vol}%"
+                    amixer sset "${ALSA_CONTROL}" "${vol}%" || bashio::log.error "❌ amixer fehlgeschlagen"
+                    mosquitto_pub "${MQTT_ARGS[@]}" -r -t "${STATE_TOPIC}" -m "${vol}"
+                else
+                    bashio::log.warning "⚠️ Wert außerhalb 0–100: ${payload}"
+                fi
             else
-                bashio::log.warning "⚠️ Wert außerhalb 0–100: ${payload}"
+                bashio::log.warning "⚠️ Ungültiger Payload: ${payload}"
             fi
-        else
-            bashio::log.warning "⚠️ Ungültiger Payload: ${payload}"
-        fi
-    done &
+        done &
+    fi
 fi
 # --- ENDE: Custom Volume Control ---
 exec python3 -m wyoming_satellite \
