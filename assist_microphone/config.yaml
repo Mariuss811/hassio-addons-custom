@@ -1,6 +1,6 @@
 name: "Assist Microphone Custom (with Volume)"
 description: "Satelliten-Mikrofon mit eigener MQTT-Lautstärkeregelung für ALSA."
-version: "1.0.4"
+version: "1.0.5"
 slug: "assist_microphone_custom"
 init: false
 arch:
@@ -41,4 +41,5 @@ schema:
   volume_topic: str
 audio: true
 mqtt: true
+hassio_api: true
 homeassistant: 2023.12.1
