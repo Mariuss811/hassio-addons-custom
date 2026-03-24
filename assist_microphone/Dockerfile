@@ -16,6 +16,9 @@ RUN \
         alsa-utils \
         python3 \
         python3-pip \
+        alsa-plugins-pulse \
+        mosquitto-clients \
+        jq \
     \
     && pip3 install --no-cache-dir -U \
         setuptools \
