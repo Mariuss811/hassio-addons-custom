@@ -1,0 +1,77 @@
+---
+version: 1.2.0
+slug: assist_satellite
+name: Assist Satellite (WakeWord Trainer Edition)
+description: Turn HA host into an ESPHome voice satellite with WakeWord Trainer audio capture & model sync
+url: https://github.com/Mariuss811/hassio-addons-custom
+hassio_api: false
+arch:
+  - amd64
+  - aarch64
+init: false
+discovery:
+  - esphome
+map:
+  - share:rw
+  - config:rw
+options:
+  name: "Anker S330"
+  port: 6053
+  audio_input_device: ""
+  audio_output_device: ""
+  wake_word: "okay_nabu"
+  stop_word: "stop"
+  refractory_seconds: 2.0
+  enable_thinking_sound: false
+  wakeup_sound: "/usr/src/sounds/wake_word_triggered.flac"
+  processing_sound: "/usr/src/sounds/processing.wav"
+  timer_sound: "/usr/src/sounds/timer_finished.flac"
+  timer_max_ring_seconds: 900.0
+  mic_volume: 100
+  mic_noise_suppression: 0
+  mic_auto_gain: 0
+  peripheral_host: "0.0.0.0"
+  peripheral_port: 6055
+  peripheral_volume_step: 0.05
+  disable_peripheral_api: false
+  debug_logging: false
+  enable_colored_debug: false
+  mute_sound: "/usr/src/sounds/mute_switch_on.flac"
+  unmute_sound: "/usr/src/sounds/mute_switch_off.flac"
+  preferences_file: "/share/assist_satellite/preferences.json"
+  download_dir: "/share/assist_satellite/local"
+  custom_wake_word_dir: "/share/assist_satellite/wakewords"
+  trainer_url: "http://192.168.178.173:8789"
+  capture_wake_audio: true
+schema:
+  name: str?
+  port: int
+  audio_input_device: str?
+  audio_output_device: str?
+  wake_word: str
+  stop_word: str
+  refractory_seconds: float
+  enable_thinking_sound: bool
+  wakeup_sound: str
+  processing_sound: str
+  timer_sound: str
+  timer_max_ring_seconds: float
+  mic_volume: "float(0.1,100)"
+  mic_noise_suppression: "int(0,4)"
+  mic_auto_gain: "int(0,31)"
+  peripheral_host: str
+  peripheral_port: int
+  peripheral_volume_step: "float(0,1)"
+  disable_peripheral_api: bool
+  debug_logging: bool
+  enable_colored_debug: bool
+  mute_sound: str
+  unmute_sound: str
+  preferences_file: str
+  download_dir: str
+  custom_wake_word_dir: str?
+  trainer_url: str?
+  capture_wake_audio: bool
+audio: true
+host_network: true
+homeassistant: 2026.3.0

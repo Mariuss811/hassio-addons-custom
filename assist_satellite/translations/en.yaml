@@ -1,0 +1,128 @@
+---
+configuration:
+  name:
+    name: Name
+    description: >-
+      Friendly name for this satellite shown in Home Assistant and sent as
+      x-source-device to the WakeWord Trainer.
+  port:
+    name: Port
+    description: >-
+      TCP port the ESPHome satellite server listens on (default: 6053).
+  audio_input_device:
+    name: Audio input device
+    description: >-
+      Soundcard name or index for the microphone input. Leave empty to use the
+      system default microphone. Run with debug logging to list available
+      devices.
+  audio_output_device:
+    name: Audio output device
+    description: >-
+      mpv audio device name for sound output. Leave empty to use the system
+      default output. Run with debug logging to list available devices.
+  wake_word:
+    name: Wake word
+    description: >-
+      ID of the wake word model to activate the assistant (e.g. hey_eddie,
+      ok_sanja, okay_nabu).
+  refractory_seconds:
+    name: Refractory period
+    description: >-
+      Minimum seconds between wake word activations to prevent accidental
+      double-triggers (default: 2.0).
+  enable_thinking_sound:
+    name: Thinking sound
+    description: >-
+      Play a short processing sound while the assistant is thinking. Can also
+      be toggled at runtime from the Home Assistant device page.
+  debug_logging:
+    name: Debug logging
+    description: >-
+      Enable verbose debug logging.
+  processing_sound:
+    name: Processing sound
+    description: >-
+      Path to a custom sound file to play while the assistant is processing a
+      command.
+  stop_word:
+    name: Stop word
+    description: >-
+      Wake word to stop the assistant from listening or speaking (default: stop).
+  timer_sound:
+    name: Timer sound
+    description: >-
+      Path to a custom sound file to play when a timer finishes.
+  timer_max_ring_seconds:
+    name: Timer max ring seconds
+    description: >-
+      Maximum seconds to ring the timer sound when a timer finishes.
+  mic_volume:
+    name: Microphone volume
+    description: >-
+      Microphone input volume (1-100%, default: 100).
+  mic_noise_suppression:
+    name: Microphone noise suppression
+    description: >-
+      Level of noise suppression to apply to the microphone input (0-4, default: 0).
+  mic_auto_gain:
+    name: Microphone auto gain
+    description: >-
+      Level of automatic gain control to apply to the microphone input (0-31, default: 0).
+  wakeup_sound:
+    name: Wake sound
+    description: >-
+      Path to a custom sound file to play when the wake word is detected.
+  mute_sound:
+    name: Mute sound
+    description: >-
+      Path to a custom sound file to play when the microphone is muted.
+  unmute_sound:
+    name: Unmute sound
+    description: >-
+      Path to a custom sound file to play when the microphone is unmuted.
+  preferences_file:
+    name: Preferences file
+    description: >-
+      Path to the JSON file used to persist runtime preferences across restarts.
+  download_dir:
+    name: Download directory
+    description: >-
+      Directory to store custom wake word models downloaded from Home Assistant.
+  custom_wake_word_dir:
+    name: Custom wake word directory
+    description: >-
+      Directory in /share where custom .tflite and .json wake word models are
+      loaded from and synced to (default: /share/assist_satellite/wakewords).
+  trainer_url:
+    name: WakeWord Trainer Server URL
+    description: >-
+      Base URL of your WakeWord Trainer server (e.g.
+      http://192.168.178.173:8789). Used to automatically sync trained wake
+      word models on startup and upload 1.5s pre-wake-word audio clips.
+  capture_wake_audio:
+    name: Capture & upload wake word audio
+    description: >-
+      When enabled, freezes the last 1.5 seconds of 16 kHz mono PCM microphone
+      audio whenever a wake word triggers (before the activation chime) and
+      uploads it to the WakeWord Trainer server for review and retraining.
+  peripheral_host:
+    name: Peripheral API host
+    description: >-
+      Bind address for the peripheral WebSocket API (default: 0.0.0.0).
+  peripheral_port:
+    name: Peripheral API port
+    description: >-
+      TCP port the peripheral WebSocket API listens on (default: 6055).
+  peripheral_volume_step:
+    name: Peripheral volume step
+    description: >-
+      Volume change applied per peripheral button press, between 0.0 and 1.0
+      (default: 0.05).
+  disable_peripheral_api:
+    name: Disable peripheral API
+    description: >-
+      Turn off the peripheral WebSocket API entirely.
+  enable_colored_debug:
+    name: Colored debug logging
+    description: >-
+      Colorize debug log output by severity.

@@ -1,0 +1,133 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+# ==============================================================================
+# Start the Assist Satellite service (linux-voice-assistant + Trainer Hook)
+# ==============================================================================
+declare -a extra_args=()
+
+# Debug logging
+if bashio::config.true 'debug_logging'; then
+    extra_args+=('--debug')
+fi
+
+# Colored Debug
+if bashio::config.true 'enable_colored_debug'; then
+    extra_args+=('--colored-debug')
+fi
+
+# Thinking sound (processing sound played while assistant thinks)
+if bashio::config.true 'enable_thinking_sound'; then
+    extra_args+=('--enable-thinking-sound')
+fi
+
+# Optional friendly name (auto-generated from MAC if empty)
+declare name
+name="$(bashio::config 'name')"
+if [[ -n "${name}" ]]; then
+    extra_args+=('--name' "${name}")
+fi
+
+# Audio configuration
+declare audio_input_device
+audio_input_device="$(bashio::config 'audio_input_device')"
+if [[ -n "${audio_input_device}" ]]; then
+    extra_args+=('--audio-input-device' "${audio_input_device}")
+fi
+
+declare audio_output_device
+audio_output_device="$(bashio::config 'audio_output_device')"
+if [[ -n "${audio_output_device}" ]]; then
+    extra_args+=('--audio-output-device' "${audio_output_device}")
+fi
+
+declare auto_gain_control
+auto_gain_control="$(bashio::config 'mic_auto_gain')"
+if [[ -n "${auto_gain_control}" ]]; then
+    extra_args+=('--mic-auto-gain' "${auto_gain_control}")
+fi
+
+declare noise_suppression
+noise_suppression="$(bashio::config 'mic_noise_suppression')"
+if [[ -n "${noise_suppression}" ]]; then
+    extra_args+=('--mic-noise-suppression' "${noise_suppression}")
+fi
+
+# Normalize mic_volume (supports both 1-100 integer and legacy 0.0-1.0 float)
+declare raw_mic_vol
+raw_mic_vol="$(bashio::config 'mic_volume')"
+declare mic_volume_int
+mic_volume_int="$(python3 -c "
+v = float('${raw_mic_vol:-100}')
+if v <= 1.0:
+    v = v * 100.0
+print(max(1, min(100, int(round(v)))))
+")"
+
+# Peripheral api configuration
+declare peripheral_host
+peripheral_host="$(bashio::config 'peripheral_host')"
+if [[ -n "${peripheral_host}" ]]; then
+    extra_args+=('--peripheral-host' "${peripheral_host}")
+fi
+
+declare peripheral_port
+peripheral_port="$(bashio::config 'peripheral_port')"
+if [[ -n "${peripheral_port}" ]]; then
+    extra_args+=('--peripheral-port' "${peripheral_port}")
+fi
+
+declare peripheral_volume_step
+peripheral_volume_step="$(bashio::config 'peripheral_volume_step')"
+if [[ -n "${peripheral_volume_step}" ]]; then
+    extra_args+=('--peripheral-volume-step' "${peripheral_volume_step}")
+fi
+
+## Disable peripheral api
+if bashio::config.true 'disable_peripheral_api'; then
+    extra_args+=('--disable-peripheral-api')
+fi
+
+# Custom wake word directory & Trainer integration
+declare custom_wake_word_dir
+custom_wake_word_dir="$(bashio::config 'custom_wake_word_dir')"
+if [[ -z "${custom_wake_word_dir}" || "${custom_wake_word_dir}" == "null" ]]; then
+    custom_wake_word_dir="/share/assist_satellite/wakewords"
+fi
+mkdir -p "${custom_wake_word_dir}" /share/wakewords
+
+extra_args+=('--wake-word-dir' "${custom_wake_word_dir}")
+if [[ "${custom_wake_word_dir}" != "/share/wakewords" ]]; then
+    extra_args+=('--wake-word-dir' "/share/wakewords")
+fi
+
+declare trainer_url
+trainer_url="$(bashio::config 'trainer_url')"
+if [[ "${trainer_url}" == "null" ]]; then
+    trainer_url=""
+fi
+export TRAINER_URL="${trainer_url}"
+export CUSTOM_WAKE_WORD_DIR="${custom_wake_word_dir}"
+
+if bashio::config.true 'capture_wake_audio'; then
+    export CAPTURE_WAKE_AUDIO="true"
+else
+    export CAPTURE_WAKE_AUDIO="false"
+fi
+
+exec python3 /usr/src/run_with_trainer_hook.py \
+    --port "$(bashio::config 'port')" \
+    --wake-model "$(bashio::config 'wake_word')" \
+    --stop-model "$(bashio::config 'stop_word')" \
+    --refractory-seconds "$(bashio::config 'refractory_seconds')" \
+    --mic-volume "${mic_volume_int}" \
+    --wake-word-dir /usr/src/wakewords \
+    --wakeup-sound "$(bashio::config 'wakeup_sound')" \
+    --timer-finished-sound "$(bashio::config 'timer_sound')" \
+    --processing-sound "$(bashio::config 'processing_sound')" \
+    --mute-sound "$(bashio::config 'mute_sound')" \
+    --unmute-sound "$(bashio::config 'unmute_sound')" \
+    --preferences-file "$(bashio::config 'preferences_file')" \
+    --download-dir "$(bashio::config 'download_dir')" \
+    --timer-max-ring-seconds "$(bashio::config 'timer_max_ring_seconds')" \
+    "${extra_args[@]}"
