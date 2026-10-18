@@ -30,6 +30,11 @@ configuration:
     description: >-
       Minimum seconds between wake word activations to prevent accidental
       double-triggers (default: 2.0).
+  listen_during_wake_sound:
+    name: Listen during wake sound
+    description: >-
+      Start listening and streaming microphone audio immediately after wake word
+      detection, without waiting for the wake sound to finish playing.
   enable_thinking_sound:
     name: Thinking sound
     description: >-

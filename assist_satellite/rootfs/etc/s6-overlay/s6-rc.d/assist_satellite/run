@@ -115,6 +115,11 @@ else
     export CAPTURE_WAKE_AUDIO="false"
 fi
 
+# Listen immediately during wake sound (no delay before STT opens)
+if bashio::config.true 'listen_during_wake_sound'; then
+    extra_args+=('--listen-during-wake-sound')
+fi
+
 exec python3 /usr/src/run_with_trainer_hook.py \
     --port "$(bashio::config 'port')" \
     --wake-model "$(bashio::config 'wake_word')" \
