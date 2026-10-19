@@ -1,5 +1,5 @@
 ---
-version: 1.2.4
+version: 1.2.6
 slug: assist_satellite
 name: Assist Satellite (WakeWord Trainer Edition)
 description: Turn HA host into an ESPHome voice satellite with WakeWord Trainer audio capture & model sync
@@ -19,13 +19,13 @@ options:
   port: 6053
   audio_input_device: ""
   audio_output_device: ""
-  wake_word: "okay_nabu"
+  wake_word: "hey_eddie"
   stop_word: "stop"
   refractory_seconds: 2.0
   listen_during_wake_sound: false
   enable_thinking_sound: false
-  wakeup_sound: "/usr/src/sounds/custom/wake_word_triggered_mixkit-gaming-lock-2848.flac"
-  processing_sound: "/usr/src/sounds/custom/processing_mixkit-select-click-1109.flac"
+  wakeup_sound: "/usr/src/sounds/custom/start_listening.flac"
+  processing_sound: "/usr/src/sounds/custom/acknowledge.flac"
   timer_sound: "/usr/src/sounds/custom/timer_finished.flac"
   timer_max_ring_seconds: 900.0
   mic_volume: 100
