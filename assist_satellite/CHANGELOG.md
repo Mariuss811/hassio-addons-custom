@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.8
+
+- Remaster custom feedback sounds (`start_listening.flac`, `acknowledge.flac`):
+  - Converted to 48kHz mono
+  - Peak normalized to -3 dBFS
+  - Added DAC wake-up pre-roll silence (25ms) and smooth sine-squared fade-in to prevent USB speakerphone amplifier clip/cut-off
+  - Added natural decay tail padding (220ms) to prevent audio cut-off before satellite recording starts
+
+## 1.2.7
+
 # 1.1.15
 
 - Update to linux-voice-assistant [1.1.15](https://github.com/OHF-Voice/linux-voice-assistant/releases/tag/v1.1.15)
