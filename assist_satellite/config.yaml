@@ -1,5 +1,5 @@
 ---
-version: 1.2.8
+version: 1.2.9
 slug: assist_satellite
 name: Assist Satellite (WakeWord Trainer Edition)
 description: Turn HA host into an ESPHome voice satellite with WakeWord Trainer audio capture & model sync
